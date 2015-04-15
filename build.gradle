@@ -15,6 +15,6 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
-mainClassName = 'no.ciber.calendar.Router'
+mainClassName = 'ciber.calendar.Router'
 
 task stage(dependsOn: ['clean', 'installApp'])

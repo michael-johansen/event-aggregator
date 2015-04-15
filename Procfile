@@ -1,1 +1,1 @@
-web: ./build/install/event-aggregator/bin/event-aggregator
+web: ./build/install/EventAggregator/bin/EventAggregator
