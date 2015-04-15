@@ -1,6 +1,7 @@
 package ciber.calendar.integration;
 
 import ciber.calendar.model.backend.BackendLocation;
+import ciber.calendar.model.backend.BackendUser;
 import ciber.calendar.model.frontend.FrontendLocation;
 import ciber.calendar.util.PropertyHolder;
 import com.google.gson.Gson;
@@ -30,6 +31,21 @@ public class Locations {
             List<FrontendLocation> frontendLocations = convert(backendLocations);
 
             return frontendLocations;
+        };
+    }
+
+    public static Route singleRoute() {
+        return (request, response) -> {
+            String idStr = request.params(":id");
+            String json = Unirest.get(locationserviceEndpoint()+"/"+idStr).asString().getBody();
+
+            BackendLocation backendLocation = new Gson().fromJson(json, BackendLocation.class);
+
+            if (backendLocation != null) {
+                return convert(Arrays.asList(backendLocation)).get(0);
+            }
+
+            return null;
         };
     }
 

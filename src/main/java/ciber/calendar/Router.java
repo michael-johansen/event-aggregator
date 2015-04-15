@@ -24,14 +24,16 @@ public class Router {
         get("/events", Events.allRoute(), defaultJsonTransformer);
         get("/events/:id", Events.singleRoute(), defaultJsonTransformer);
         post("/events", Events.newRoute());
+        put("/events/:id", Events.updateRoute());
+        delete("/events/:id", Events.deleteRoute());
 
         get("/locations", Locations.allRoute(), defaultJsonTransformer);
+        get("/locations/:id", Locations.singleRoute(), defaultJsonTransformer);
 
         get("/users", Users.allRoute(), defaultJsonTransformer);
         get("/users/:id", Users.singleRoute(), defaultJsonTransformer);
 
         exception(Exception.class, (e, request, response) -> {
-            e.printStackTrace();
             response.status(500);
             response.body("Bugs, bugs everywhere!");
         });

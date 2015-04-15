@@ -11,6 +11,7 @@ import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
+import com.mashape.unirest.request.HttpRequestWithBody;
 import com.mashape.unirest.request.body.RequestBodyEntity;
 import spark.Route;
 
@@ -52,16 +53,43 @@ public class Events {
 
     public static Route newRoute() {
         return (request, response) -> {
-            String postedJson = response.body();
+            String postedJson = request.body();
             FrontendEvent frontendEvent = new Gson().fromJson(postedJson, FrontendEvent.class);
 
             BackendEvent backendEvent = new BackendEvent(frontendEvent);
-            RequestBodyEntity requestEntity = Unirest.post(eventserviceEndpoint()).header("Content-Type", "application/json").body(new Gson().toJson(backendEvent));
-            if (requestEntity.asString().getStatus() != 200) {
-                throw new RuntimeException();
-            }
-            response.status(200);
-            return null;
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
+            RequestBodyEntity requestEntity = Unirest.post(eventserviceEndpoint())
+                    .header("Content-Type", "application/json")
+                    .body(gson.toJson(backendEvent));
+
+            response.status(requestEntity.asString().getStatus());
+            return "{}";
+        };
+    }
+
+    public static Route updateRoute() {
+        return (request, response) -> {
+            String idStr = request.params(":id");
+            String putJson = request.body();
+            FrontendEvent frontendEvent = new Gson().fromJson(putJson, FrontendEvent.class);
+
+            BackendEvent backendEvent = new BackendEvent(frontendEvent);
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
+            RequestBodyEntity requestEntity = Unirest.put(eventserviceEndpoint() + "/" + idStr)
+                    .header("Content-Type", "application/json")
+                    .body(gson.toJson(backendEvent));
+
+            response.status(requestEntity.asString().getStatus());
+            return "{}";
+        };
+    }
+
+    public static Route deleteRoute() {
+        return (request, response) -> {
+            String idStr = request.params(":id");
+            HttpRequestWithBody requestEntity = Unirest.delete(eventserviceEndpoint() + "/" + idStr);
+            response.status(requestEntity.asString().getStatus());
+            return "{}";
         };
     }
 
@@ -108,6 +136,5 @@ public class Events {
     private static String eventserviceEndpoint() {
         return PropertyHolder.getProperty("eventservice.endpoint");
     }
-
 
 }
