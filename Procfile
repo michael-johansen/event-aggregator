@@ -1,1 +1,1 @@
-web:    java -cp target/classes:target/dependency/* Router
+web: ./build/install/event-aggregator/bin/event-aggregator
