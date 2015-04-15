@@ -18,6 +18,8 @@ public class Router {
 
         JsonTransformer defaultJsonTransformer = new JsonTransformer();
 
+        port(getPort());
+
         before((request, response) -> response.type("application/json"));
         get("/events", Events.allRoute(), defaultJsonTransformer);
         get("/events/:id", Events.singleRoute(), defaultJsonTransformer);
@@ -33,7 +35,14 @@ public class Router {
             response.status(500);
             response.body("Bugs, bugs everywhere!");
         });
+    }
 
+    private static int getPort() {
+        String environmentPort = System.getenv("PORT");
+        if (environmentPort != null) {
+            return Integer.parseInt(environmentPort);
+        }
+        return 4567;
     }
 
 }
