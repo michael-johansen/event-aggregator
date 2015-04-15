@@ -1,12 +1,10 @@
 package ciber.calendar.integration;
 
 import ciber.calendar.model.backend.BackendEvent;
-import ciber.calendar.model.backend.BackendUser;
 import ciber.calendar.model.frontend.FrontendEvent;
 import ciber.calendar.model.frontend.FrontendLocation;
 import ciber.calendar.model.frontend.FrontendUser;
 import ciber.calendar.util.PropertyHolder;
-import ciber.calendar.util.RouteParams;
 import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -16,7 +14,6 @@ import com.mashape.unirest.request.body.RequestBodyEntity;
 import spark.Route;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ciber.calendar.util.RouteParams.*;
 
@@ -57,10 +54,8 @@ public class Events {
             FrontendEvent frontendEvent = new Gson().fromJson(postedJson, FrontendEvent.class);
 
             BackendEvent backendEvent = new BackendEvent(frontendEvent);
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
-            RequestBodyEntity requestEntity = Unirest.post(eventserviceEndpoint())
-                    .header("Content-Type", "application/json")
-                    .body(gson.toJson(backendEvent));
+            RequestBodyEntity requestEntity = withJsonContent(Unirest.post(eventserviceEndpoint()))
+                    .body(gson().toJson(backendEvent));
 
             response.status(requestEntity.asString().getStatus());
             return "{}";
@@ -74,10 +69,8 @@ public class Events {
             FrontendEvent frontendEvent = new Gson().fromJson(putJson, FrontendEvent.class);
 
             BackendEvent backendEvent = new BackendEvent(frontendEvent);
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
-            RequestBodyEntity requestEntity = Unirest.put(eventserviceEndpoint() + "/" + idStr)
-                    .header("Content-Type", "application/json")
-                    .body(gson.toJson(backendEvent));
+            RequestBodyEntity requestEntity = withJsonContent(Unirest.put(eventserviceEndpoint() + "/" + idStr))
+                    .body(gson().toJson(backendEvent));
 
             response.status(requestEntity.asString().getStatus());
             return "{}";
@@ -131,6 +124,14 @@ public class Events {
         });
 
         return new ArrayList<>(frontendEvents.values());
+    }
+
+    private static Gson gson() {
+        return new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
+    }
+
+    private static HttpRequestWithBody withJsonContent(HttpRequestWithBody request) {
+        return request.header("Content-Type", "application/json");
     }
 
     private static String eventserviceEndpoint() {
